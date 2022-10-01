@@ -1,5 +1,9 @@
 # Code Editor Assignment
 
+[Youtube Demo](https://www.youtube.com/watch?v=_Tp0sw0AaCo)
+
+![Preview](https://github.com/rahulvyas1/react-file-browser/blob/master/screenshot.png?raw=true)
+
 ## Product Features-
 
 - Create files and folders
