@@ -23,3 +23,4 @@
 - Copy is not generating unique Ids
 - Need better UI right click menu
 - Implement 'Create New Project' button
+- Responsive design?
