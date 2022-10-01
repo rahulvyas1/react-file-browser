@@ -103,10 +103,10 @@ const Directory = ({ files }) => {
               }}
               onClick={() => {
                 toggleExpanded(!isExpanded);
-                // setEntityMetaData(files.id, {
-                //   ...files.metaData,
-                //   isExpanded: !isExpanded,
-                // });
+                setEntityMetaData(files.id, {
+                  ...files.metaData,
+                  isExpanded: !isExpanded,
+                });
                 !isEditing && setSelectedEntityId(files.id);
                 setNewEntityData(null);
               }}
