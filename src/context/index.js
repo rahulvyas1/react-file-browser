@@ -23,6 +23,7 @@ const state = {
   clipboardAction: null,
   setClipboardAction: (action, data) => {},
   pasteEntity: (parentId) => {},
+  resetProject: () => {},
 };
 
 export const Context = createContext(state);
@@ -83,7 +84,6 @@ export const ContextProvider = (props) => {
       if (dir?.length) {
         for (let i = 0; i < dir.length; i++) {
           if (dir[i].id === id) {
-            console.log('deleting');
             dir.splice(i, 1);
             break;
           } else {
@@ -94,7 +94,6 @@ export const ContextProvider = (props) => {
     };
     recursive(clonedDir);
     setDirectoryTree(clonedDir);
-    console.log(clonedDir);
     // Delete file data from local storage
     const cloned = fileIdDictionary;
     delete cloned[selectedEntityId];
@@ -129,7 +128,6 @@ export const ContextProvider = (props) => {
       }
     };
     recursive(cloned);
-
     if (isError) return false;
 
     setDirectoryTree(cloned);
@@ -232,7 +230,6 @@ export const ContextProvider = (props) => {
         if (dir?.length) {
           for (let i = 0; i < dir.length; i++) {
             if (dir[i].id === id) {
-              console.log('deleting');
               removedEntity = dir.splice(i, 1);
               break;
             } else {
@@ -242,13 +239,10 @@ export const ContextProvider = (props) => {
         }
       };
       recursiveCut(clonedDir);
-      console.log({ removedEntity });
       // If the selectedEntity is file, then find nearest parent and paste there
       const recursivePaste = (dir) => {
         for (let item of dir) {
-          console.log('selectedEntityId', selectedEntityId, 'item id', item.id);
           if (parentId === item.id) {
-            console.log('pasting............', item.name);
             if (item.type === 'folder') {
               item.items.push(removedEntity[0]);
             }
@@ -259,7 +253,6 @@ export const ContextProvider = (props) => {
         }
       };
       recursivePaste(clonedDir);
-      console.log(clonedDir);
       setDirectoryTree(clonedDir);
     }
     if (clipboardAction?.action === 'COPY') {
@@ -271,7 +264,6 @@ export const ContextProvider = (props) => {
         if (dir?.length) {
           for (let i = 0; i < dir.length; i++) {
             if (dir[i].id === id) {
-              console.log('copying...');
               copiedEntity = dir[i];
               break;
             } else {
@@ -281,15 +273,12 @@ export const ContextProvider = (props) => {
         }
       };
       recursiveCopy(clonedDir);
-      console.log({ copiedEntity });
 
       const modifiedEntity = copyFiles(copiedEntity);
 
       const recursivePaste = (dir) => {
         for (let item of dir) {
-          console.log('selectedEntityId', selectedEntityId, 'item id', item.id);
           if (parentId === item.id) {
-            console.log('pasting............', item.name);
             if (item.type === 'folder') {
               item.items.push(modifiedEntity);
             }
@@ -300,7 +289,6 @@ export const ContextProvider = (props) => {
         }
       };
       recursivePaste(clonedDir);
-      console.log(clonedDir);
       setDirectoryTree(clonedDir);
     }
     setClipboardAction(null);
@@ -313,7 +301,6 @@ export const ContextProvider = (props) => {
    */
   const copyFiles = (dirToCopy) => {
     const recursive = (dir) => {
-      console.log({ dir });
       for (let item of dir) {
         const newId = generateRandomId();
         if (item.type === 'file') {
@@ -328,6 +315,15 @@ export const ContextProvider = (props) => {
 
     recursive([dirToCopy]);
     return dirToCopy;
+  };
+
+  /**
+   * Reset Project will clear all the items from local storage and refresh the page
+   * In Production, we must use it to create a new project entity and save it separately instead of deleting all the previous data.
+   */
+  const resetProject = () => {
+    localStorage.clear();
+    document.location.reload();
   };
 
   const state = {
@@ -348,6 +344,7 @@ export const ContextProvider = (props) => {
     clipboardAction,
     setClipboardAction,
     pasteEntity,
+    resetProject,
   };
 
   return <Context.Provider value={state}>{props.children}</Context.Provider>;

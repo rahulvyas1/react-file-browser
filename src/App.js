@@ -28,6 +28,7 @@ function App() {
     setProjectTitle,
     setNewEntityData,
     selectedEntityId,
+    resetProject,
   } = useContext(Context);
 
   return (
@@ -46,8 +47,8 @@ function App() {
             </div>
             <div className="hidden md:flex items-center space-x-3 ">
               <a
-                href=""
-                className="my-1 py-2 px-2 font-small text-white bg-green-700 rounded hover:bg-green-400 transition duration-300"
+                onClick={() => resetProject()}
+                className="hover:cursor-pointer my-1 py-2 px-2 font-small text-white bg-green-700 rounded hover:bg-green-400 transition duration-300"
               >
                 Create New Project
               </a>
@@ -127,7 +128,9 @@ function App() {
             </div>
           </div>
           {directoryTree &&
-            directoryTree.map((files) => <Directory files={files} />)}
+            directoryTree.map((files, i) => (
+              <Directory files={files} key={i} />
+            ))}
         </div>
         <div className="flex-initial w-9/12">
           <CodeEditor />

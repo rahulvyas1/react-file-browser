@@ -103,10 +103,10 @@ const Directory = ({ files }) => {
               }}
               onClick={() => {
                 toggleExpanded(!isExpanded);
-                setEntityMetaData(files.id, {
-                  ...files.metaData,
-                  isExpanded: !isExpanded,
-                });
+                // setEntityMetaData(files.id, {
+                //   ...files.metaData,
+                //   isExpanded: !isExpanded,
+                // });
                 !isEditing && setSelectedEntityId(files.id);
                 setNewEntityData(null);
               }}
@@ -187,7 +187,8 @@ const Directory = ({ files }) => {
                 </button>
               )}
             </div>
-            {isExpanded && dirData.map((item) => <Directory files={item} />)}
+            {isExpanded &&
+              dirData.map((item) => <Directory files={item} key={item.id} />)}
           </div>
 
           <div></div>
