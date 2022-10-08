@@ -1,4 +1,4 @@
-# Code Editor Assignment
+# React based File Browser
 
 [Youtube Demo](https://www.youtube.com/watch?v=_Tp0sw0AaCo)
 
