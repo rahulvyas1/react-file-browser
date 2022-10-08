@@ -27,7 +27,7 @@ function App() {
     deleteEntity,
     setProjectTitle,
     setNewEntityData,
-    selectedEntityId,
+    selectedEntity,
     resetProject,
   } = useContext(Context);
 
@@ -82,41 +82,18 @@ function App() {
               disabled={true}
             />
             <div>
-              <button
-                className=""
-                onClick={() => {
-                  // Get data from entity ID and check if folder
-                  const entityData = getDataFromEntityId(selectedEntityId);
-                  if (entityData?.type === 'folder') {
-                    setNewEntityData('file');
-                  } else {
-                    toast.error(
-                      'Please select a folder before creating a new file.'
-                    );
-                  }
-                }}
-              >
+              <button className="" onClick={() => setNewEntityData('file')}>
                 <DocumentPlusIcon className="h-4 w-4  text-gray-600 hover:text-gray-800" />
               </button>
               <button
                 className="ml-2"
-                onClick={() => {
-                  // Get data from entity ID and check if folder
-                  const entityData = getDataFromEntityId(selectedEntityId);
-                  if (entityData?.type === 'folder') {
-                    setNewEntityData('folder');
-                  } else {
-                    toast.error(
-                      'Please select a folder before creating a new folder.'
-                    );
-                  }
-                }}
+                onClick={() => setNewEntityData('folder')}
               >
                 <FolderPlusIcon className="h-4 w-4  text-gray-600 hover:text-gray-800" />
               </button>
               <button
                 onClick={() => {
-                  if (selectedEntityId === 'root') {
+                  if (selectedEntity?.id === 'root') {
                     return toast.error('Root folder cannot be deleted.');
                   }
                   deleteEntity();

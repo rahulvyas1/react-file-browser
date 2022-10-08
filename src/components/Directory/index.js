@@ -13,8 +13,8 @@ import { extractFileExtension, generateRandomId } from '../../utils';
 const Directory = ({ files }) => {
   const {
     setEntityName,
-    selectedEntityId,
-    setSelectedEntityId,
+    selectedEntity,
+    setSelectedEntity,
     activeFileId,
     setActiveFileId,
     newEntityData,
@@ -26,6 +26,7 @@ const Directory = ({ files }) => {
     clipboardAction,
     setClipboardAction,
     pasteEntity,
+    nearestFolder,
   } = useContext(Context);
 
   const [dirData, setDirData] = useState(files?.items);
@@ -36,7 +37,7 @@ const Directory = ({ files }) => {
   const [isSelected, setIsSelected] = useState(false);
 
   useEffect(() => {
-    if (newEntityData && selectedEntityId === files.id) {
+    if (newEntityData && nearestFolder?.id === files.id) {
       let newEntityObj =
         newEntityData === 'folder'
           ? {
@@ -68,8 +69,8 @@ const Directory = ({ files }) => {
   }, [directoryTree]);
 
   useEffect(() => {
-    setIsSelected(selectedEntityId === files.id || activeFileId === files.id);
-  }, [selectedEntityId, activeFileId]);
+    setIsSelected(selectedEntity?.id === files.id || activeFileId === files.id);
+  }, [selectedEntity, activeFileId]);
 
   useEffect(() => {
     if (files.metaData?.isExpanded) {
@@ -107,7 +108,7 @@ const Directory = ({ files }) => {
                 //   ...files.metaData,
                 //   isExpanded: !isExpanded,
                 // });
-                !isEditing && setSelectedEntityId(files.id);
+                !isEditing && setSelectedEntity(files);
                 setNewEntityData(null);
               }}
             >
@@ -207,7 +208,7 @@ const Directory = ({ files }) => {
           setShowMenu(false);
         }}
         onClick={() => {
-          !isEditing && setSelectedEntityId(files.id);
+          !isEditing && setSelectedEntity(files);
           setActiveFileId(files.id);
           setNewEntityData(null);
         }}

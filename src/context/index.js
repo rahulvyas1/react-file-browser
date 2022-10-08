@@ -11,8 +11,8 @@ const state = {
   setProjectTitle: (newTitle) => {},
   newEntityData: null,
   setNewEntityData: (val) => {},
-  selectedEntityId: null,
-  setSelectedEntityId: (id) => {},
+  selectedEntity: null,
+  setSelectedEntity: (entity) => {},
   setEntityName: (entityId, newName) => {},
   deleteEntity: (entityId) => {},
   activeFileId: null,
@@ -24,16 +24,18 @@ const state = {
   setClipboardAction: (action, data) => {},
   pasteEntity: (parentId) => {},
   resetProject: () => {},
+  nearestFolder: null,
 };
 
 export const Context = createContext(state);
 
 export const ContextProvider = (props) => {
+  const [nearestFolder, setNearestFolder] = useState(null);
   const [clipboardAction, setClipboardAction] = useState(null);
   const [newEntityData, setNewEntityData] = useState(null);
   const [fileIdDictionary, setFileIdDictionary] = useState({});
   const [activeFileId, setActiveFileId] = useState(null);
-  const [selectedEntityId, setSelectedEntityId] = useState('root');
+  const [selectedEntity, setSelectedEntity] = useState({});
   const [projectTitle, setProjectTitle] = useState('Untitled Project');
   const [directoryTree, setDirectoryTree] = useState([]);
 
@@ -54,10 +56,20 @@ export const ContextProvider = (props) => {
     const savedFileIdDict =
       localStorage.getItem('FILE_IDS') || JSON.stringify({});
     const savedActiveFileId = localStorage.getItem('ACTIVE_FILE_ID') || null;
-    setDirectoryTree(JSON.parse(defaultDirTree));
+    const dir = JSON.parse(defaultDirTree);
+    setDirectoryTree(dir);
     setFileIdDictionary(JSON.parse(savedFileIdDict));
     setActiveFileId(savedActiveFileId);
+    setSelectedEntity(dir[0]);
+    console.log({ dir });
+    const folder = findNearestParentFolder(dir[0]);
+    setNearestFolder(folder);
   }, []);
+
+  useEffect(() => {
+    const folder = findNearestParentFolder(selectedEntity);
+    setNearestFolder(folder);
+  }, [selectedEntity, activeFileId]);
 
   useEffect(() => {
     if (Object.keys(fileIdDictionary))
@@ -79,7 +91,7 @@ export const ContextProvider = (props) => {
    */
   const deleteEntity = () => {
     const clonedDir = JSON.parse(JSON.stringify(directoryTree));
-    const id = selectedEntityId;
+    const id = selectedEntity?.id;
     const recursive = (dir) => {
       if (dir?.length) {
         for (let i = 0; i < dir.length; i++) {
@@ -96,7 +108,7 @@ export const ContextProvider = (props) => {
     setDirectoryTree(clonedDir);
     // Delete file data from local storage
     const cloned = fileIdDictionary;
-    delete cloned[selectedEntityId];
+    delete cloned[selectedEntity?.id];
     setFileIdDictionary({ ...cloned });
   };
 
@@ -106,8 +118,8 @@ export const ContextProvider = (props) => {
    * @returns
    */
   const addEntity = (newEntity) => {
-    // To do - pick nearest parent node if selectedEntityId is not a folder
-    const parentId = selectedEntityId || 'root';
+    // To do - pick nearest parent node if selectedEntity is not a folder
+    const parentId = nearestFolder?.id;
     const cloned = JSON.parse(JSON.stringify(directoryTree));
     let isError = false;
     const recursive = (dir) => {
@@ -132,12 +144,12 @@ export const ContextProvider = (props) => {
 
     setDirectoryTree(cloned);
     // Update the linear file map in localStorage
-    setFileIdDictionary({ ...fileIdDictionary, selectedEntityId: true });
+    setFileIdDictionary({ ...fileIdDictionary, selectedEntity: true });
     if (newEntity.type === 'file') setActiveFileId(newEntity.id);
     localStorage.setItem('FILE_IDS', JSON.stringify(fileIdDictionary));
     localStorage.setItem('DIR_TREE', JSON.stringify(directoryTree));
     setNewEntityData(null);
-    setSelectedEntityId(newEntity.id);
+    setSelectedEntity(newEntity);
     return true;
   };
 
@@ -318,6 +330,27 @@ export const ContextProvider = (props) => {
   };
 
   /**
+   * It finds the nearest parent to an entity ID
+   */
+  const findNearestParentFolder = (item) => {
+    // If entity itself is of type folder, then we return itself
+    if (item.type === 'folder') return item;
+    let parent = directoryTree;
+    const recursion = (folder) => {
+      if (!folder || folder.type !== 'folder') return;
+      if (folder.items.find((entity) => entity.id === item.id)) {
+        parent = folder;
+        return;
+      }
+      for (let entity of folder.items) {
+        recursion(entity);
+      }
+    };
+    recursion(directoryTree[0]);
+    return parent;
+  };
+
+  /**
    * Reset Project will clear all the items from local storage and refresh the page
    * In Production, we must use it to create a new project entity and save it separately instead of deleting all the previous data.
    */
@@ -333,8 +366,8 @@ export const ContextProvider = (props) => {
     setProjectTitle,
     setEntityName,
     deleteEntity,
-    selectedEntityId,
-    setSelectedEntityId,
+    selectedEntity,
+    setSelectedEntity,
     activeFileId,
     setActiveFileId,
     setEntityMetaData,
@@ -345,6 +378,7 @@ export const ContextProvider = (props) => {
     setClipboardAction,
     pasteEntity,
     resetProject,
+    nearestFolder,
   };
 
   return <Context.Provider value={state}>{props.children}</Context.Provider>;
